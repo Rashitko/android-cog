@@ -36,7 +36,7 @@ setup(
     author='Michal Raska',
     author_email='michal.raska@gmail.com',
     description='',
-    install_requires=['up', 'pyyaml', 'pyserial'],
+    install_requires=['up', 'pyyaml', 'pyserial', 'twisted'],
     cmdclass={
         'install': PostInstallCommand,
         'develop': PostInstallCommand,
