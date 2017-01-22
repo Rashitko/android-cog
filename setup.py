@@ -19,7 +19,8 @@ class PostInstallCommand(install):
         with open(path, 'w+') as external_mods_file:
             external_mods['android_cog'] = {
                 'modules': [
-                    {'prefix': 'android_cog.modules.android_module', 'class_name': 'AndroidProvider'}
+                    {'prefix': 'android_cog.modules.android_module', 'class_name': 'AndroidProvider'},
+                    {'prefix': 'android_cog.modules.android_battery_module', 'class_name': 'AndroidBatteryProvider'}
                 ],
                 'recorders': []
             }
@@ -30,7 +31,7 @@ class PostInstallCommand(install):
 setup(
     name='android_cog',
     version='0.1',
-    packages=['android_cog', 'android_cog.modules'],
+    packages=['android_cog', 'android_cog.modules', 'android_cog.commands'],
     url='',
     license='',
     author='Michal Raska',
