@@ -1,4 +1,5 @@
 .idea
 build
+dist
 android_cog.egg-info
 **/__pycache__

@@ -1,5 +1,7 @@
 import json
+import os
 
+import yaml
 from twisted.internet import reactor
 from twisted.internet.endpoints import TCP4ServerEndpoint
 from twisted.internet.protocol import connectionDone, Factory
@@ -7,7 +9,10 @@ from twisted.protocols.basic import LineReceiver
 from up.base_started_module import BaseStartedModule
 from up.commands.altitude_command import AltitudeCommand
 from up.commands.command import BaseCommand
+from up.registrar import UpRegistrar
 from up.utils.up_logger import UpLogger
+
+from android_cog.registrar import Registrar
 
 
 class AndroidProvider(BaseStartedModule):
@@ -18,9 +23,13 @@ class AndroidProvider(BaseStartedModule):
         self.__protocol = AndroidProtocol(self.up.command_receiver)
 
     def _execute_start(self):
-        endpoint = TCP4ServerEndpoint(reactor, 50001)
-        endpoint.listen(AndroidProtocolFactory(self.__protocol))
-        return True
+        port = self.__read_config()
+        if port is not None:
+            endpoint = TCP4ServerEndpoint(reactor, port)
+            endpoint.listen(AndroidProtocolFactory(self.__protocol))
+            return True
+        self.logger.critical('Port not set. Set it in %s' % Registrar.CONFIG_FILE_NAME)
+        return False
 
     def _execute_stop(self):
         pass
@@ -33,6 +42,16 @@ class AndroidProvider(BaseStartedModule):
 
     def load(self):
         return True
+
+    @staticmethod
+    def __read_config():
+        config_path = os.path.join(os.getcwd(), UpRegistrar.CONFIG_PATH, Registrar.CONFIG_FILE_NAME)
+        port = None
+        if os.path.isfile(config_path):
+            with open(config_path) as f:
+                config = yaml.load(f)
+                port = config.get(Registrar.PORT_KEY, None)
+        return port
 
 
 class AndroidProtocol(LineReceiver):

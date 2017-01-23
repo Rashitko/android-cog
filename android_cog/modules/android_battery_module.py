@@ -1,9 +1,13 @@
 from up.base_started_module import BaseStartedModule
 
 from android_cog.commands.android_battery_command import AndroidBatteryCommand, AndroidBatteryCommandHandler
+from android_cog.modules.android_module import AndroidProvider
 
 
 class AndroidBatteryProvider(BaseStartedModule):
+
+    LOAD_ORDER = AndroidProvider.LOAD_ORDER + 1
+
     def __init__(self, config=None, silent=False):
         super().__init__(config, silent)
         self.__battery_level = None
