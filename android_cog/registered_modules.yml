@@ -1,0 +1,4 @@
+modules:
+- {class_name: AndroidBatteryProvider, prefix: android_cog.modules.android_battery_module}
+- {class_name: AndroidProvider, prefix: android_cog.modules.android_module}
+recorders: []

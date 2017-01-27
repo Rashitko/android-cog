@@ -15,4 +15,7 @@ setup(
     author_email='michal.raska@gmail.com',
     description='',
     install_requires=['up', 'pyyaml', 'twisted'],
+    package_data={
+        'android_cog': ['android_cog/registered_modules.yml']
+    }
 )
