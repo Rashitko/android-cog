@@ -26,6 +26,12 @@ class AndroidBatteryProvider(BaseStartedModule):
         return True
 
     @property
+    def telemetry_content(self):
+        return {'android': {
+            'batteryLevel': self.battery_level
+        }}
+
+    @property
     def battery_level(self):
         return self.__battery_level
 

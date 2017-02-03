@@ -18,9 +18,10 @@ from android_cog.registrar import Registrar
 class AndroidProvider(BaseStartedModule):
     def __init__(self):
         super().__init__()
+        self.__connected = False
 
     def _execute_initialization(self):
-        self.__protocol = AndroidProtocol(self.up.command_receiver)
+        self.__protocol = AndroidProtocol(self)
 
     def _execute_start(self):
         port = self.__read_config()
@@ -43,6 +44,20 @@ class AndroidProvider(BaseStartedModule):
     def load(self):
         return True
 
+    def client_connected(self, connected):
+        self.__connected = connected
+
+    def execute_command(self, command):
+        self.up.command_executor.execute_command(command)
+
+    @property
+    def telemetry_content(self):
+        return {
+            'android': {
+                'connected': self.connected
+            }
+        }
+
     @staticmethod
     def __read_config():
         config_path = os.path.join(os.getcwd(), UpRegistrar.CONFIG_PATH, Registrar.CONFIG_FILE_NAME)
@@ -52,6 +67,10 @@ class AndroidProvider(BaseStartedModule):
                 config = yaml.load(f)
                 port = config.get(Registrar.PORT_KEY, None)
         return port
+
+    @property
+    def connected(self):
+        return self.__connected
 
 
 class AndroidProtocol(LineReceiver):
@@ -86,12 +105,14 @@ class AndroidProtocol(LineReceiver):
         :return: None
         """
         self.__logger.info("Connection from {} opened".format(self.transport.client[0]))
+        self.__callbacks.client_connected(True)
         for data in self.__queue:
             self.sendLine(data)
         self.__queue.clear()
 
     def connectionLost(self, reason=connectionDone):
         self.__logger.info("Connection lost")
+        self.__callbacks.client_connected(False)
 
 
 class AndroidProtocolFactory(Factory):
