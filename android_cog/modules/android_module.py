@@ -9,9 +9,11 @@ from twisted.protocols.basic import LineReceiver
 from up.base_started_module import BaseStartedModule
 from up.commands.altitude_command import AltitudeCommand
 from up.commands.command import BaseCommand
+from up.commands.telemetry_command import TelemetryCommand
 from up.registrar import UpRegistrar
 from up.utils.up_logger import UpLogger
 
+from android_cog.commands.telemetry_command_handler import TelemetryCommandHandler
 from android_cog.registrar import Registrar
 
 
@@ -21,19 +23,23 @@ class AndroidProvider(BaseStartedModule):
         self.__connected = False
 
     def _execute_initialization(self):
+        super()._execute_initialization()
         self.__protocol = AndroidProtocol(self)
 
     def _execute_start(self):
+        super()._execute_start()
         port = self.__read_config()
-        if port is not None:
-            endpoint = TCP4ServerEndpoint(reactor, port)
-            endpoint.listen(AndroidProtocolFactory(self.__protocol))
-            return True
-        self.logger.critical('Port not set. Set it in %s' % Registrar.CONFIG_FILE_NAME)
-        return False
+        if port is None:
+            self.logger.critical('Port not set. Set it in %s' % Registrar.CONFIG_FILE_NAME)
+            return False
+        endpoint = TCP4ServerEndpoint(reactor, port)
+        endpoint.listen(AndroidProtocolFactory(self.__protocol))
+        self.__telemetry_handle = self.up.command_executor.register_command(TelemetryCommand.NAME,
+                                                                            TelemetryCommandHandler(self))
+        return True
 
     def _execute_stop(self):
-        pass
+        super()._execute_stop()
 
     def send_data(self, data):
         if self.__protocol.transport:
@@ -111,7 +117,7 @@ class AndroidProtocol(LineReceiver):
         self.__queue.clear()
 
     def connectionLost(self, reason=connectionDone):
-        self.__logger.info("Connection lost")
+        self.__logger.warning("Connection lost")
         self.__callbacks.client_connected(False)
 
 
