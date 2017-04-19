@@ -9,7 +9,7 @@ from twisted.internet.endpoints import TCP4ServerEndpoint
 from twisted.internet.protocol import Protocol, Factory, connectionDone
 from up.base_started_module import BaseStartedModule
 from up.commands.stop_command import BaseStopCommand
-from up.modules.base_orientation_provider import BaseOrientationProvider
+from up.modules.up_orientation_provider import UpOrientationProvider
 from up.registrar import UpRegistrar
 
 from android_cog.modules.android_module import AndroidProvider
@@ -33,7 +33,7 @@ class AndroidOrientationProvider(BaseStartedModule):
         if self.__port is None:
             raise ValueError("Orientation port not set. Set it in the %s config under key '%s'" % (Registrar.CONFIG_FILE_NAME, Registrar.ORIENTATION_PORT_KEY))
         self.__protocol = AndroidOrientationProtocol(self)
-        self.__orientation_provider = self.up.get_module(BaseOrientationProvider)
+        self.__orientation_provider = self.up.get_module(UpOrientationProvider)
         if self.__orientation_provider is None:
             self.logger.critical("Orientation Provider not available")
             raise ValueError("Orientation Provider not available")
