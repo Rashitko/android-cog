@@ -16,6 +16,6 @@ setup(
     description='',
     install_requires=['up', 'pyyaml', 'twisted'],
     package_data={
-        'android_cog': ['android_cog/registered_modules.yml']
+        'android_cog': ['registered_modules.yml']
     }
 )
